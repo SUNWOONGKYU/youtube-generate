@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>YouTube 영상 제작 프로세스</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px 20px; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 10px; color: #f8fafc; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 50px; font-size: 14px; }
+  .pipeline { max-width: 900px; margin: 0 auto; position: relative; }
+  .pipeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981);
+    transform: translateX(-50%);
+    z-index: 0;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+  }
+  .step:nth-child(even) { flex-direction: row-reverse; }
+  .step-number {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    color: #fff;
+    flex-shrink: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .step-content {
+    width: calc(50% - 50px);
+    padding: 20px 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .step:nth-child(odd) .step-content { margin-right: auto; }
+  .step:nth-child(even) .step-content { margin-left: auto; }
+  .step-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .step-desc { font-size: 13px; color: #cbd5e1; line-height: 1.7; }
+  .step-tool { display: inline-block; margin-top: 10px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .step-files { margin-top: 10px; font-size: 12px; color: #94a3b8; }
+  .step-files code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .arrow-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 60px;
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+  }
+  /* Step colors */
+  .s0 .step-number { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .s0 .step-content { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
+  .s0 .step-title { color: #60a5fa; }
+  .s0 .step-tool { background: rgba(59,130,246,0.2); color: #93bbfd; }
+
+  .s1 .step-number { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+  .s1 .step-content { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); }
+  .s1 .step-title { color: #818cf8; }
+  .s1 .step-tool { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+
+  .s2 .step-number { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .s2 .step-content { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.3); }
+  .s2 .step-title { color: #a78bfa; }
+  .s2 .step-tool { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+
+  .s3 .step-number { background: linear-gradient(135deg, #ec4899, #db2777); }
+  .s3 .step-content { background: rgba(236,72,153,0.1); border-color: rgba(236,72,153,0.3); }
+  .s3 .step-title { color: #f472b6; }
+  .s3 .step-tool { background: rgba(236,72,153,0.2); color: #f9a8d4; }
+
+  .s4 .step-number { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .s4 .step-content { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); }
+  .s4 .step-title { color: #fbbf24; }
+  .s4 .step-tool { background: rgba(245,158,11,0.2); color: #fcd34d; }
+
+  .s5 .step-number { background: linear-gradient(135deg, #f97316, #ea580c); }
+  .s5 .step-content { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.3); }
+  .s5 .step-title { color: #fb923c; }
+  .s5 .step-tool { background: rgba(249,115,22,0.2); color: #fdba74; }
+
+  .s6 .step-number { background: linear-gradient(135deg, #10b981, #059669); }
+  .s6 .step-content { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); }
+  .s6 .step-title { color: #34d399; }
+  .s6 .step-tool { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+
+  .s7 .step-number { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  .s7 .step-content { background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.3); }
+  .s7 .step-title { color: #22d3ee; }
+  .s7 .step-tool { background: rgba(6,182,212,0.2); color: #67e8f9; }
+
+  .command-box {
+    max-width: 900px;
+    margin: 50px auto 0;
+    padding: 30px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .command-box h2 { font-size: 20px; margin-bottom: 15px; color: #f8fafc; }
+  .command-box pre {
+    background: #1e293b;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: #e2e8f0;
+  }
+  .command-box pre .comment { color: #64748b; }
+  .command-box pre .cmd { color: #34d399; }
+  .command-box pre .flag { color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<h1>YouTube 영상 제작 자동화 프로세스</h1>
+<p class="subtitle">소재 파일 하나로 영상 재료 완성</p>
+
+<div class="pipeline">
+
+  <!-- Step 0 -->
+  <div class="step s0">
+    <div class="step-number">0</div>
+    <div class="step-content">
+      <div class="step-title">소재 준비</div>
+      <div class="step-desc">
+        MD 파일로 영상 소재를 작성합니다.<br>
+        기존 콘텐츠(실전_Tips, 학습용_Books 등)를 그대로 사용하거나<br>
+        새로운 주제를 직접 작성합니다.
+      </div>
+      <span class="step-tool">사용자 직접 작성</span>
+      <div class="step-files">입력: <code>input/topic.md</code></div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step s1">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <div class="step-title">경쟁 영상 리서치</div>
+      <div class="step-desc">
+        소재와 유사한 인기 유튜브 영상을 자동 검색합니다.<br>
+        <b>Gemini CLI</b>가 인기 영상 3개를 찾고,<br>
+        <b>yt-dlp + youtube-transcript-api</b>가 자막과 메타데이터를 직접 추출합니다.<br>
+        Gemini는 추출된 자막을 받아 구조 분석 + 뼈대 생성만 합니다.
+      </div>
+      <span class="step-tool">Gemini CLI + yt-dlp + youtube-transcript-api</span>
+      <div class="step-files">
+        출력: <code>output/research/[타임스탬프]/</code><br>
+        &nbsp;&nbsp;<code>metadata.json</code> <code>transcript.txt</code> <code>analysis.txt</code> <code>skeleton.txt</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step s2">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <div class="step-title">올인원 스크립트 생성</div>
+      <div class="step-desc">
+        소재 + 리서치 결과를 참고하여<br>
+        <b>제목 + 썸네일 문구 + 전체 대본</b>을 한번에 생성합니다.<br>
+        사용자 확인 후 수정 가능합니다.
+      </div>
+      <span class="step-tool">Claude CLI</span>
+      <div class="step-files">
+        출력: <code>output/scripts/[타임스탬프]/</code><br>
+        &nbsp;&nbsp;<code>title.txt</code> <code>thumbnail.txt</code> <code>script.txt</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step s3">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <div class="step-title">스크립트 분석</div>
+      <div class="step-desc">
+        확정된 대본을 분석하여 섹션별로 분리합니다.<br>
+        각 섹션의 예상 시간, 키워드, 제목 힌트를 추출합니다.
+      </div>
+      <span class="step-tool">Python (script_analyzer)</span>
+      <div class="step-files">내부 처리 &rarr; ScriptAnalysis 객체 생성</div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step s4">
+    <div class="step-number">4</div>
+    <div class="step-content">
+      <div class="step-title">이미지 프롬프트 + 음성 생성</div>
+      <div class="step-desc">
+        섹션별 이미지 생성용 프롬프트를 만들고,<br>
+        <b>ElevenLabs API</b>로 TTS 음성 파일을 생성합니다.<br>
+        첫 번째 이미지 프롬프트는 클립보드에 자동 복사됩니다.
+      </div>
+      <span class="step-tool">ElevenLabs API + Python</span>
+      <div class="step-files">
+        출력: <code>03_prompts/image_prompts.txt</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>01_voice/section_*.mp3</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step s5">
+    <div class="step-number">5</div>
+    <div class="step-content">
+      <div class="step-title">Vrew 가이드 + 메타데이터 생성</div>
+      <div class="step-desc">
+        Vrew 영상 편집을 위한 타임라인 가이드와<br>
+        유튜브 업로드용 메타데이터(제목, 설명, 태그)를 자동 생성합니다.
+      </div>
+      <span class="step-tool">Python (guide + metadata generator)</span>
+      <div class="step-files">
+        출력: <code>04_guide/vrew_guide.txt</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>05_metadata/metadata.txt</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step s6">
+    <div class="step-number">6</div>
+    <div class="step-content">
+      <div class="step-title">Vrew 편집 &rarr; 유튜브 업로드</div>
+      <div class="step-desc">
+        생성된 음성 + 이미지 + 가이드를 Vrew에서 조합하여<br>
+        영상을 완성하고 유튜브에 업로드합니다.<br>
+        메타데이터를 복사하여 제목/설명/태그를 입력합니다.
+      </div>
+      <span class="step-tool">Vrew (수동) + YouTube</span>
+      <div class="step-files">결과: 유튜브 영상 URL</div>
+    </div>
+  </div>
+
+  <!-- Step 7 -->
+  <div class="step s7">
+    <div class="step-number">7</div>
+    <div class="step-content">
+      <div class="step-title">블로그 글 생성 (선택)</div>
+      <div class="step-desc">
+        유튜브 URL을 입력하면 영상 대본을 기반으로<br>
+        블로그 글을 자동 생성합니다.
+      </div>
+      <span class="step-tool">Python (blog_generator)</span>
+      <div class="step-files">출력: <code>06_blog/blog.md</code></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="command-box">
+  <h2>CLI 명령어</h2>
+  <pre><span class="comment"># 스킬 실행 (전체 프로세스 올인원)</span>
+<span class="cmd">/youtube-generate</span> input/topic.md
+
+<span class="comment"># 또는 단계별 수동 실행:</span>
+<span class="cmd">python orchestrator.py</span> <span class="flag">--research</span> input/topic.md          <span class="comment"># Step 1: 리서치</span>
+<span class="cmd">python orchestrator.py</span> <span class="flag">--write</span> input/topic.md             <span class="comment"># Step 2: 대본 생성</span>
+<span class="cmd">python orchestrator.py</span> output/scripts/.../script.txt       <span class="comment"># Step 3~5: 재료 생성</span>
+<span class="cmd">python orchestrator.py</span> output/scripts/.../script.txt <span class="flag">--short</span> <span class="comment"># 숏폼 모드</span>
+<span class="cmd">python orchestrator.py</span> <span class="flag">--blog</span> &lt;유튜브URL&gt; output/[폴더]   <span class="comment"># Step 7: 블로그</span></pre>
+</div>
+
+</body>
+</html>
